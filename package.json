@@ -1,0 +1,27 @@
+{
+  "name": "potion-wizard-backend",
+  "version": "1.0.0",
+  "description": "Backend para realizar operaciones CRUD (Crear, Leer, Actualizar y Eliminar) sobre el inventario de una tienda de pociones mágicas.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maikolguerrero/potion-wizard-backend.git"
+  },
+  "author": "Maikol Guerrero",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maikolguerrero/potion-wizard-backend/issues"
+  },
+  "homepage": "https://github.com/maikolguerrero/potion-wizard-backend#readme",
+  "dependencies": {
+    "dotenv": "^16.1.0",
+    "express": "^4.18.2",
+    "mysql2": "^3.3.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
