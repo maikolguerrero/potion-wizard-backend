@@ -1,6 +1,5 @@
-
 // Definimos la constante ingredientesModel para poder obtener los datos de la BD
-const ingredientesModel = require('../models/ingredientes.models');
+const ingredientesModel = require('../models/ingredientes.model');
 
 class IngredientesController {
     // Mostrar lista de los ingredientes

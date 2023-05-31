@@ -1,5 +1,5 @@
 // Importamos la función para poder realizar las consultas a la BD
-const { realizarConsulta } = require('../../config/consulta')
+const realizarConsulta = require('../../config/consulta')
 
 class IngredientesModel {
     // Mostrar lista de los ingredientes
