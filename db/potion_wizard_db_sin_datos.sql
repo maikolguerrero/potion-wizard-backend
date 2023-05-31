@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 30-05-2023 a las 19:59:02
+-- Tiempo de generación: 01-06-2023 a las 00:28:16
 -- Versión del servidor: 10.4.24-MariaDB
 -- Versión de PHP: 8.1.6
 
@@ -23,6 +23,18 @@ USE potion_wizard_db;
 --
 -- Base de datos: `potion_wizard_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `categorias`
+--
+
+CREATE TABLE `categorias` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(255) NOT NULL,
+  `descripcion` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -49,17 +61,29 @@ CREATE TABLE `pociones` (
   `descripcion` text NOT NULL,
   `precio` decimal(10,2) NOT NULL,
   `cantidad` int(11) NOT NULL,
-  `imagen` varchar(255) NOT NULL,
-  `categoria` varchar(255) DEFAULT NULL
+  `imagen` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `pocion_ingrediente`
+-- Estructura de tabla para la tabla `pociones_categorias`
 --
 
-CREATE TABLE `pocion_ingrediente` (
+CREATE TABLE `pociones_categorias` (
+  `id` int(11) NOT NULL,
+  `id_pocion` int(11) NOT NULL,
+  `id_categoria` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pociones_ingredientes`
+--
+
+CREATE TABLE `pociones_ingredientes` (
+  `id` int(11) NOT NULL,
   `id_pocion` int(11) NOT NULL,
   `id_ingrediente` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -67,6 +91,12 @@ CREATE TABLE `pocion_ingrediente` (
 --
 -- Índices para tablas volcadas
 --
+
+--
+-- Indices de la tabla `categorias`
+--
+ALTER TABLE `categorias`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `ingredientes`
@@ -81,15 +111,30 @@ ALTER TABLE `pociones`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `pocion_ingrediente`
+-- Indices de la tabla `pociones_categorias`
 --
-ALTER TABLE `pocion_ingrediente`
+ALTER TABLE `pociones_categorias`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_pocion` (`id_pocion`),
+  ADD KEY `id_categoria` (`id_categoria`);
+
+--
+-- Indices de la tabla `pociones_ingredientes`
+--
+ALTER TABLE `pociones_ingredientes`
+  ADD PRIMARY KEY (`id`),
   ADD KEY `id_pocion` (`id_pocion`),
   ADD KEY `id_ingrediente` (`id_ingrediente`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
+
+--
+-- AUTO_INCREMENT de la tabla `categorias`
+--
+ALTER TABLE `categorias`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `ingredientes`
@@ -104,15 +149,34 @@ ALTER TABLE `pociones`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `pociones_categorias`
+--
+ALTER TABLE `pociones_categorias`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pociones_ingredientes`
+--
+ALTER TABLE `pociones_ingredientes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- Restricciones para tablas volcadas
 --
 
 --
--- Filtros para la tabla `pocion_ingrediente`
+-- Filtros para la tabla `pociones_categorias`
 --
-ALTER TABLE `pocion_ingrediente`
-  ADD CONSTRAINT `pocion_ingrediente_ibfk_1` FOREIGN KEY (`id_pocion`) REFERENCES `pociones` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `pocion_ingrediente_ibfk_2` FOREIGN KEY (`id_ingrediente`) REFERENCES `ingredientes` (`id`) ON DELETE CASCADE;
+ALTER TABLE `pociones_categorias`
+  ADD CONSTRAINT `pociones_categorias_ibfk_1` FOREIGN KEY (`id_pocion`) REFERENCES `pociones` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pociones_categorias_ibfk_2` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `pociones_ingredientes`
+--
+ALTER TABLE `pociones_ingredientes`
+  ADD CONSTRAINT `pociones_ingredientes_ibfk_1` FOREIGN KEY (`id_pocion`) REFERENCES `pociones` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pociones_ingredientes_ibfk_2` FOREIGN KEY (`id_ingrediente`) REFERENCES `ingredientes` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
