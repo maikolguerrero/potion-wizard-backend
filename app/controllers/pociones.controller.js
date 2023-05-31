@@ -11,6 +11,20 @@ class PocionesController {
             res.status(500).json({ status: 500, message: `Error al obtener las pociones: ${error.message}` });
         }
     }
+
+    // Mostrar categoría por id
+    async buscarPorId(req, res) {
+        const { id } = req.params;
+        try {
+            const pocion = await pocionesModel.buscarPorId(id);
+            if (!pocion) {
+                return res.status(404).json({ status: 404, message: 'Poción no encontrada.' });
+            }
+            res.status(200).json({ status: 200, message: 'Poción encontrada.', data: pocion });
+        } catch (error) {
+            res.status(500).json({ status: 500, message: `Error al buscar la poción: ${error}` });
+        }
+    }
 }
 
 // Exportación de las funciones

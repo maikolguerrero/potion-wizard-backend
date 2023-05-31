@@ -6,6 +6,8 @@ const ingredientesController = require('../controllers/ingredientes.controller')
 
 //Ruta para listar todos los ingredientes
 route.get('/', ingredientesController.listar);
+// Ruta para buscar un ingrediente por ID
+route.get('/:id', ingredientesController.buscarPorId);
 
 //Exportamos las rutas
 module.exports = route;
