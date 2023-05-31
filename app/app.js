@@ -9,6 +9,7 @@ app.set('port', port);
 // Rutas de la app
 app.use('/ingredientes', require('./routes/ingredientes.routes'));
 app.use('/pociones', require('./routes/pociones.routes'));
+app.use('/categorias', require('./routes/categorias.routes'));
 
 // Middleware para manejar rutas no encontradas y devolver error 404
 app.use((req, res, next) => {
