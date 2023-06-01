@@ -6,6 +6,7 @@ const pocionesController = require('../controllers/pociones.controller');
 
 //Ruta para listar todos las pociones
 route.get('/', pocionesController.listar);
+route.get('/buscar/:terminos', pocionesController.buscar);
 // Ruta para buscar una poción por ID
 route.get('/:id', pocionesController.buscarPorId);
 
