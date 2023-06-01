@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 require('dotenv').config();
+const path = require('path');
 const port = process.env.PORT || 3000;
 
 // Establecer el puerto
@@ -11,6 +12,9 @@ app.set('port', port);
 app.use('/ingredientes', require('./routes/ingredientes.routes'));
 app.use('/pociones', require('./routes/pociones.routes'));
 app.use('/categorias', require('./routes/categorias.routes'));
+
+// Definir la ruta para mostrar las imágenes
+app.use('/images', express.static(path.join(__dirname, '../static/images')));
 
 // Middleware para manejar rutas no encontradas y devolver error 404
 app.use((req, res, next) => {
