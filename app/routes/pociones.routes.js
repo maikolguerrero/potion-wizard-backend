@@ -17,6 +17,8 @@ route.get('/buscar/:terminos', pocionesController.buscar);
 route.post('/crear', upload.single('imagen'), pocionesController.crear);
 // Ruta para editar una poción
 route.put('/editar', upload.single('imagen'), pocionesController.editar);
+// Ruta para eliminar una poción
+route.delete('/eliminar/:id', pocionesController.eliminar);
 
 //Exportamos las rutas
 module.exports = route;

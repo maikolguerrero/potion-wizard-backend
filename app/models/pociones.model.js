@@ -212,6 +212,17 @@ class PocionesModel {
     }
   }
 
+  // Eliminar la relación de una poción con una categoría
+  async eliminarRelacionPocionCategoria(pocionId, categoriaId) {
+    const sql = 'DELETE FROM pociones_categorias WHERE id_pocion = ? AND id_categoria = ?';
+    try {
+      await realizarConsulta(sql, [pocionId, categoriaId]);
+    } catch (error) {
+      console.log(`Hubo un error al eliminar la relación de la poción ${pocionId} con la categoría ${categoriaId}:`, error);
+      throw error;
+    }
+  }
+
   // Crear una nueva poción
   async crear(pocion) {
     const { nombre, descripcion, precio, cantidad, imagen } = pocion;
@@ -236,6 +247,22 @@ class PocionesModel {
       await realizarConsulta(sql, values);
     } catch (error) {
       console.log(`Hubo un error al actualizar la poción con el ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  // Eliminar una poción por su ID
+  async eliminar(id) {
+    const sql = 'DELETE FROM pociones WHERE id = ?';
+    const values = [id];
+    try {
+      const resultado = await realizarConsulta(sql, values);
+      if (resultado.affectedRows === 0) {
+        return null; // Poción no encontrada
+      }
+      return true; // Eliminación exitosa
+    } catch (error) {
+      console.log(`Hubo un error al eliminar la poción con el ID ${id}:`, error);
       throw error;
     }
   }

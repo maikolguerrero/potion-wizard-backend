@@ -4,7 +4,6 @@ const categoriasModel = require('../models/categorias.model');
 const ingredientesModel = require('../models/ingredientes.model');
 const { borrarImagen } = require('../../config/multer');
 const path = require('path');
-const { Console } = require('console');
 
 class PocionesController {
   // Mostrar lista de las pociones
@@ -243,6 +242,51 @@ class PocionesController {
       return res.status(500).json({ status: 500, message: `Error al actualizar la poción: ${error}` });
     }
   }
+
+  // Eliminar una poción
+  async eliminar(req, res) {
+    const { id } = req.params;
+    try {
+      // Verificar si la poción existe
+      const pocionExistente = await PocionesController.validarPocionExistente(id);
+      if (!pocionExistente) {
+        return res.status(404).json({ status: 404, message: 'Poción no encontrada.' });
+      }
+
+      // Obtener los datos de la poción
+      const pocion = await pocionesModel.buscarPorId(id);
+
+      // Obtener la categoría
+      const categoriaEliminar = pocion.categoria;
+
+      // Eliminar la relación existente con la categoría
+      await pocionesModel.eliminarRelacionPocionCategoria(id, categoriaEliminar);
+
+      // Obtener los ingredientes
+      const ingredientesEliminar = pocion.ingredientes;
+      console.log(`Ingredientes eliminar: ${ingredientesEliminar}`);
+
+      // Eliminar las relaciones existentes con los ingredientes
+      await pocionesModel.eliminarRelacionesIngredientes(id, ingredientesEliminar);
+
+      // Obtener el nombre de la imagen
+      const nombreImagen = pocion.imagen;
+
+      // Construir la ruta completa de la imagen
+      const folder = `../../static/images/${nombreImagen}`;
+      const rutaImagen = path.join(__dirname, folder);
+
+      // Eliminar imagen
+      borrarImagen(rutaImagen);
+
+      // Eliminar la poción de la base de datos
+      await pocionesModel.eliminar(id);
+      res.status(200).json({ status: 200, message: 'Poción eliminada exitosamente.' });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al eliminar la poción: ${error}` });
+    }
+  }
+
 }
 
 // Exportación de las funciones
