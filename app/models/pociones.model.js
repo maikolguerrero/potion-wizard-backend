@@ -33,7 +33,7 @@ class PocionesModel {
             precio: row.precio,
             cantidad: row.cantidad,
             imagen: row.imagen,
-            categoria: row.categoria ? [row.categoria] : 'No hay categoría',
+            categoria: row.categoria ? row.categoria : 'No hay categoría',
             ingredientes: row.ingrediente ? [row.ingrediente] : []
           });
         }
@@ -111,7 +111,7 @@ class PocionesModel {
             precio: row.precio,
             cantidad: row.cantidad,
             imagen: row.imagen,
-            categoria: row.categoria ? [row.categoria] : 'No hay categoría',
+            categoria: row.categoria ? row.categoria : 'No hay categoría',
             ingredientes: row.ingrediente ? [row.ingrediente] : []
           });
         }
@@ -133,6 +133,19 @@ class PocionesModel {
       return pocion;
     } catch (error) {
       console.log(`Hubo un error al buscar la poción con nombre ${nombre}:`, error);
+      throw error;
+    }
+  }
+
+  // Buscar poción por su nombre
+  async buscarPorImagen(imagen) {
+    const sql = 'SELECT * FROM pociones WHERE imagen = ?';
+    const values = [imagen];
+    try {
+      const [pocion] = await realizarConsulta(sql, values);
+      return pocion;
+    } catch (error) {
+      console.log(`Hubo un error al buscar la poción con la imagen ${imagen}:`, error);
       throw error;
     }
   }
@@ -161,6 +174,44 @@ class PocionesModel {
     }
   }
 
+  // Actualizar la relación de una poción con categoría
+  async actualizarRelacionConCategoria(pocionId, nuevaCategoriaId) {
+    const sql = 'UPDATE pociones_categorias SET id_categoria = ? WHERE id_pocion = ?';
+    const values = [nuevaCategoriaId, pocionId];
+    try {
+      await realizarConsulta(sql, values);
+    } catch (error) {
+      console.log(`Hubo un error al actualizar la relación de la poción ${pocionId} con la categoría:`, error);
+      throw error;
+    }
+  }
+
+  // Obtener los ingredientes de una poción
+  async obtenerIngredientesDePocion(pocionId) {
+    const sql = 'SELECT id_ingrediente AS id FROM pociones_ingredientes WHERE id_pocion = ?';
+    const values = [pocionId];
+    try {
+      const rows = await realizarConsulta(sql, values);
+      return rows.map(row => ({ id: row.id }));
+    } catch (error) {
+      console.log(`Hubo un error al obtener los ingredientes de la poción ${pocionId}:`, error);
+      throw error;
+    }
+  }
+
+  // Eliminar las relaciones de una poción con ingredientes específicos
+  async eliminarRelacionesIngredientes(pocionId, ingredientesEliminar) {
+    const sql = 'DELETE FROM pociones_ingredientes WHERE id_pocion = ? AND id_ingrediente = ?';
+    try {
+      for (const ingrediente of ingredientesEliminar) {
+        await realizarConsulta(sql, [pocionId, ingrediente.id]);
+      }
+    } catch (error) {
+      console.log(`Hubo un error al eliminar las relaciones de la poción ${pocionId} con los ingredientes:`, error);
+      throw error;
+    }
+  }
+
   // Crear una nueva poción
   async crear(pocion) {
     const { nombre, descripcion, precio, cantidad, imagen } = pocion;
@@ -172,6 +223,19 @@ class PocionesModel {
       return nuevaPocionId;
     } catch (error) {
       console.log('Hubo un error al crear la poción:', error);
+      throw error;
+    }
+  }
+
+  // Editar poción
+  async actualizar(pocion) {
+    const { id, nombre, descripcion, precio, cantidad, imagen } = pocion;
+    const sql = 'UPDATE pociones SET nombre = ?, descripcion = ?, precio = ?, cantidad = ?, imagen = ? WHERE id = ?';
+    const values = [nombre, descripcion, precio, cantidad, imagen, id];
+    try {
+      await realizarConsulta(sql, values);
+    } catch (error) {
+      console.log(`Hubo un error al actualizar la poción con el ID ${id}:`, error);
       throw error;
     }
   }

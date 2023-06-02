@@ -2,8 +2,9 @@
 const pocionesModel = require('../models/pociones.model');
 const categoriasModel = require('../models/categorias.model');
 const ingredientesModel = require('../models/ingredientes.model');
-const { borrarImagen } = require('../multer/multer');
+const { borrarImagen } = require('../../config/multer');
 const path = require('path');
+const { Console } = require('console');
 
 class PocionesController {
   // Mostrar lista de las pociones
@@ -45,6 +46,12 @@ class PocionesController {
   }
 
   // Verificar que el nombre de la función existe
+  static async validarPocionExistente(id) {
+    const pocionExistente = await pocionesModel.buscarPorId(id);
+    return pocionExistente;
+  }
+
+  // Verificar que el nombre de la función existe
   static async validarNombrePocionExistente(nombre) {
     const pocionExistente = await pocionesModel.buscarPorNombre(nombre);
     return pocionExistente;
@@ -76,6 +83,9 @@ class PocionesController {
     // Obtenemos el nombre de la imagen
     const imagen = path.basename(rutaImagen);
 
+    // Convertir los ingredientesIDs en un array
+    const nuevosIngredientesIds = ingredientesIDs.split(',');
+
     try {
       // Verificar si ya existe una poción con el mismo nombre
       const nombreExistente = await PocionesController.validarNombrePocionExistente(nombre);
@@ -92,8 +102,8 @@ class PocionesController {
       }
 
       // Verificar si los ingredientes existen
-      const ingredientesExistentes = await PocionesController.validarIngredientesExistentes(ingredientesIDs);
-      if (ingredientesExistentes.length !== ingredientesIDs.length) {
+      const ingredientesExistentes = await PocionesController.validarIngredientesExistentes(nuevosIngredientesIds);
+      if (ingredientesExistentes.length !== nuevosIngredientesIds.length) {
         borrarImagen(rutaImagen);
         return res.status(400).json({ status: 400, message: 'Alguno(s) de los ingredientes especificados no existe(n).' });
       }
@@ -105,12 +115,132 @@ class PocionesController {
       await pocionesModel.relacionarPocionConCategorias(nuevaPocionId, categoriaID);
 
       // Relacionar la poción con los ingredientes
-      await pocionesModel.relacionarPocionConIngredientes(nuevaPocionId, ingredientesIDs);
+      await pocionesModel.relacionarPocionConIngredientes(nuevaPocionId, nuevosIngredientesIds);
 
       return res.status(201).json({ status: 201, message: 'Poción creada exitosamente.', data: { id: nuevaPocionId } });
     } catch (error) {
       borrarImagen(rutaImagen);
       return res.status(500).json({ status: 500, message: `Error al crear la poción: ${error}` });
+    }
+  }
+
+  // Función para actualizar la relación de una poción con categorías
+  static async actualizarRelacionConCategoria(pocionId, nuevaCategoriaId) {
+    try {
+      await pocionesModel.actualizarRelacionConCategoria(pocionId, nuevaCategoriaId);
+    } catch (error) {
+      console.log(`Hubo un error al actualizar la relación de la poción ${pocionId} con la categoría:`, error);
+      throw error;
+    }
+  }
+
+  // Función para actualizar la relación de una poción con ingredientes
+  static async actualizarRelacionConIngredientes(pocionId, nuevosIngredientesIds) {
+    try {
+      // Obtener los ingredientes actuales de la poción
+      const ingredientesActuales = await pocionesModel.obtenerIngredientesDePocion(pocionId);
+
+      // Convertir los id de los ingredientes actuales a entero
+      const nuevosIngredientesIdsNum = nuevosIngredientesIds.map(id => parseInt(id, 10));
+
+      // Obtener los ingredientes que están en las relaciones actuales
+      const ingredientesEliminar = ingredientesActuales.filter(ingrediente => !nuevosIngredientesIdsNum.includes(ingrediente.id));
+
+      // Eliminar las relaciones existentes que no están en los nuevos ingredientes
+      await pocionesModel.eliminarRelacionesIngredientes(pocionId, ingredientesEliminar);
+
+      // Obtener los ingredientes que no están en las relaciones actuales
+      const ingredientesAgregar = nuevosIngredientesIdsNum.filter(id => !ingredientesActuales.some(ingrediente => ingrediente.id === id));
+
+      // Agregar las nuevas relaciones con los ingredientes
+      await pocionesModel.relacionarPocionConIngredientes(pocionId, ingredientesAgregar);
+    } catch (error) {
+      console.log(`Hubo un error al actualizar la relación de la poción ${pocionId} con ingredientes:`, error);
+      throw error;
+    }
+  }
+
+  // Editar poción
+  async editar(req, res) {
+    const { id, nombre, descripcion, precio, cantidad, categoriaID, ingredientesIDs, imagenNueva } = req.body;
+
+    let imagen;
+    let rutaImagen;
+    if (req.file) {
+      // Obtenemos la ruta de la imagen
+      rutaImagen = req.file.path;
+    }
+
+    if (imagenNueva == "true") {
+      // Obtenemos el nombre de la imagen
+      imagen = path.basename(rutaImagen);
+    }
+
+    // Convertir los ingredientesIDs en un array
+    const nuevosIngredientesIds = ingredientesIDs.split(',');
+
+    // Verificar si nuevosIngredientesIds es un array válido
+    if (!Array.isArray(nuevosIngredientesIds)) {
+      return console.log('Los ingredientesIDs no son un array válido.');
+    }
+
+    try {
+      // Verificar si la poción existe
+      const pocionExistente = await PocionesController.validarPocionExistente(id);
+      if (!pocionExistente) {
+        borrarImagen(rutaImagen);
+        return res.status(404).json({ status: 404, message: 'La poción especificada no existe.' });
+      }
+
+      // Verificar si ya existe una poción con el mismo nombre, excluyendo la poción actualmente editada
+      const nombreExistente = await PocionesController.validarNombrePocionExistente(nombre);
+      if (nombreExistente && nombreExistente.id != id) {
+        borrarImagen(rutaImagen);
+        return res.status(400).json({ status: 400, message: 'Ya existe una poción con ese nombre.' });
+      }
+
+      // Verificar si la categoría existe
+      const categoriaExistente = await PocionesController.validarCategoriaExistente(categoriaID);
+      if (!categoriaExistente) {
+        borrarImagen(rutaImagen);
+        return res.status(400).json({ status: 400, message: 'La categoría especificada no existe.' });
+      }
+
+      // Verificar si los ingredientes existen
+      const ingredientesExistentes = await PocionesController.validarIngredientesExistentes(nuevosIngredientesIds);
+      if (ingredientesExistentes.length !== nuevosIngredientesIds.length) {
+        borrarImagen(rutaImagen);
+        return res.status(400).json({ status: 400, message: 'Alguno(s) de los ingredientes especificados no existe(n).' });
+      }
+
+      // Obtener el nombre de la imagen antigua
+      const pocionAntigua = await pocionesModel.buscarPorId(id);
+      const nombreImagenAntigua = pocionAntigua.imagen;
+
+      // Construir la ruta completa de la imagen antigua
+      const folder = `../../static/images/${nombreImagenAntigua}`;
+      const rutaImagenAntigua = path.join(__dirname, folder);
+
+      if (imagenNueva == "true") {
+        // Eliminar la imagen antigua
+        borrarImagen(rutaImagenAntigua);
+      } else {
+        // Borrar la imagen
+        borrarImagen(rutaImagen);
+        imagen = path.basename(rutaImagenAntigua);
+      }
+
+      // Actualizar la poción
+      await pocionesModel.actualizar({ id, nombre, descripcion, precio, cantidad, imagen });
+      // Actualizar la relación con la categoría
+      await PocionesController.actualizarRelacionConCategoria(id, categoriaID);
+
+      // Actualizar la relación con los ingredientes
+      await PocionesController.actualizarRelacionConIngredientes(id, nuevosIngredientesIds);
+
+      return res.status(200).json({ status: 200, message: 'Poción actualizada exitosamente.' });
+    } catch (error) {
+      return res.status(500).json({ status: 500, message: `Error al actualizar la poción: ${error}` });
     }
   }
 }
