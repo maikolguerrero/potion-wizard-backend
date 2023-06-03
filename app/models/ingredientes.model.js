@@ -26,6 +26,18 @@ class IngredientesModel {
       throw error;
     }
   }
+
+  // Actualizar la cantidad del ingrediente restando 1 en la cantidad
+  async actualizarCantidad(ingredienteId, nuevaCantidad) {
+    const sql = 'UPDATE ingredientes SET cantidad = ? WHERE id = ?';
+    try {
+      await realizarConsulta(sql, [nuevaCantidad, ingredienteId]);
+    } catch (error) {
+      console.log(`Hubo un error al actualizar la cantidad del ingrediente ${ingredienteId}:`, error);
+      throw error;
+    }
+  }
+  
 }
 
 const ingredientesM = new IngredientesModel();
