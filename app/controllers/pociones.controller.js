@@ -63,13 +63,13 @@ class PocionesController {
   }
 
   // Verificar si los ingredientes existen por sus IDs
-  static async validarIngredientesExistentes(ingredientesIDs) {
+  static async validarIngredientesExistentes(ingredientesIDs, cantidad) {
     const ingredientesExistentes = [];
     for (const ingredienteId of ingredientesIDs) {
       const ingrediente = await ingredientesModel.buscarPorId(ingredienteId);
       if (ingrediente) {
         // Verificar la disponibilidad del ingrediente
-        if (ingrediente.cantidad > 0) {
+        if (ingrediente.cantidad >= cantidad) {
           ingredientesExistentes.push(ingrediente);
         }
       }
@@ -104,15 +104,15 @@ class PocionesController {
       }
 
       // Verificar si los ingredientes existen y su disponibilidad
-      const ingredientesExistentes = await PocionesController.validarIngredientesExistentes(nuevosIngredientesIds);
+      const ingredientesExistentes = await PocionesController.validarIngredientesExistentes(nuevosIngredientesIds, cantidad);
       if (ingredientesExistentes.length !== nuevosIngredientesIds.length) {
         borrarImagen(rutaImagen);
         return res.status(400).json({ status: 400, message: 'Alguno(s) de los ingredientes especificados no existe(n) o no están disponibles.' });
       }
 
-      // Restar 1 a la cantidad de cada ingrediente utilizado
+      // Restar la cantidad de pociones que se quieren crear a la cantidad de cada ingrediente utilizado
       for (const ingrediente of ingredientesExistentes) {
-        await ingredientesModel.actualizarCantidad(ingrediente.id, ingrediente.cantidad - 1);
+        await ingredientesModel.actualizarCantidad(ingrediente.id, ingrediente.cantidad - cantidad);
       }
 
       // Crear la nueva poción
@@ -272,7 +272,6 @@ class PocionesController {
 
       // Obtener los ingredientes
       const ingredientesEliminar = pocion.ingredientes;
-      console.log(`Ingredientes eliminar: ${ingredientesEliminar}`);
 
       // Eliminar las relaciones existentes con los ingredientes
       await pocionesModel.eliminarRelacionesIngredientes(id, ingredientesEliminar);
