@@ -26,6 +26,19 @@ class CategoriasModel {
       throw error;
     }
   }
+
+   // Mostrar categoría por nombre
+   async buscarPorNombre(nombre) {
+    const sql = 'SELECT * FROM categorias WHERE nombre = ?';
+    const values = [nombre];
+    try {
+      const [categoria] = await realizarConsulta(sql, values);
+      return categoria;
+    } catch (error) {
+      console.log(`Hubo un error al buscar la categoría con nombre ${nombre}:`, error);
+      throw error;
+    }
+  }
 }
 
 const categoriasM = new CategoriasModel();

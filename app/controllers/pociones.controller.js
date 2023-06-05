@@ -170,7 +170,7 @@ class PocionesController {
   // Editar poción
   async editar(req, res) {
     const { id, nombre, descripcion, precio, cantidad, categoriaID, ingredientesIDs, imagenNueva } = req.body;
-
+    console.log(ingredientesIDs);
     let imagen;
     let rutaImagen;
     if (req.file) {
@@ -214,12 +214,17 @@ class PocionesController {
       }
 
       // Verificar si los ingredientes existen
-      const ingredientesExistentes = await PocionesController.validarIngredientesExistentes(nuevosIngredientesIds);
+      const ingredientesExistentes = await PocionesController.validarIngredientesExistentes(nuevosIngredientesIds, cantidad);
       if (ingredientesExistentes.length !== nuevosIngredientesIds.length) {
         borrarImagen(rutaImagen);
         return res.status(400).json({ status: 400, message: 'Alguno(s) de los ingredientes especificados no existe(n).' });
       }
 
+      // Restar la cantidad de pociones que se quieren crear a la cantidad de cada ingrediente utilizado
+      for (const ingrediente of ingredientesExistentes) {
+        await ingredientesModel.actualizarCantidad(ingrediente.id, ingrediente.cantidad - cantidad);
+      }
+      
       // Obtener el nombre de la imagen antigua
       const pocionAntigua = await pocionesModel.buscarPorId(id);
       const nombreImagenAntigua = pocionAntigua.imagen;

@@ -25,6 +25,24 @@ class CategoriasController {
       res.status(500).json({ status: 500, message: `Error al buscar la categoría: ${error}` });
     }
   }
+
+  // Mostrar categoría por nombre
+  async buscarIdPorNombre(req, res) {
+    const { nombre } = req.params;
+    console.log(nombre);
+    try {
+      // Llamamos a la función buscarPorNombre del modelo
+      const categoria = await categoriasModel.buscarPorNombre(nombre);
+      if (!categoria) {
+        return res.status(404).json({ status: 404, message: 'Categoría no encontrada.' });
+      }
+      // Extraemos el ID de la categoría
+      const { id } = categoria;
+      res.status(200).json({ status: 200, message: 'Categoría encontrada.', data: categoria });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al buscar la categoría: ${error}` });
+    }
+  }
 }
 
 // Exportación de las funciones

@@ -25,6 +25,19 @@ class IngredientesController {
             res.status(500).json({ status: 500, message: `Error al buscar el ingrediente: ${error}` });
         }
     }
+
+    // Mostrar ingredientes por nombre
+    async buscarPorNombre(req, res) {
+        const { nombres } = req.params;
+        try {
+            const nombresIngredientes = nombres.split(',').map(nombre => nombre.trim());
+            const ingredientesEncontrados = await Promise.all(nombresIngredientes.map(nombre => ingredientesModel.buscarPorNombre(nombre)));
+
+            res.status(200).json({ status: 200, message: 'Ingredientes encontrados.', data: ingredientesEncontrados });
+        } catch (error) {
+            res.status(500).json({ status: 500, message: `Error al buscar los ingredientes: ${error}` });
+        }
+    }
 }
 
 // Exportación de las funciones

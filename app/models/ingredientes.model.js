@@ -27,6 +27,19 @@ class IngredientesModel {
     }
   }
 
+  // Mostrar ingredientes por nombre
+  async buscarPorNombre(nombre) {
+    const sql = 'SELECT * FROM ingredientes WHERE nombre = ?';
+    const values = [nombre];
+    try {
+      const [ingrediente] = await realizarConsulta(sql, values);
+      return ingrediente;
+    } catch (error) {
+      console.log(`Hubo un error al buscar el ingrediente con nombre ${nombre}:`, error);
+      throw error;
+    }
+  }
+
   // Actualizar la cantidad del ingrediente restando 1 en la cantidad
   async actualizarCantidad(ingredienteId, nuevaCantidad) {
     const sql = 'UPDATE ingredientes SET cantidad = ? WHERE id = ?';
@@ -37,7 +50,7 @@ class IngredientesModel {
       throw error;
     }
   }
-  
+
 }
 
 const ingredientesM = new IngredientesModel();

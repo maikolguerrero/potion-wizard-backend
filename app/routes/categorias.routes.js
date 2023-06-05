@@ -8,6 +8,8 @@ const categoriasController = require('../controllers/categorias.controller');
 route.get('/', categoriasController.listar);
 // Ruta para buscar una categoría por ID
 route.get('/:id', categoriasController.buscarPorId);
+// Ruta para buscar una categoría por nombre
+route.get('/nombre/:nombre', categoriasController.buscarIdPorNombre);
 
 //Exportamos las rutas
 module.exports = route;
