@@ -29,7 +29,6 @@ class CategoriasController {
   // Mostrar categoría por nombre
   async buscarIdPorNombre(req, res) {
     const { nombre } = req.params;
-    console.log(nombre);
     try {
       // Llamamos a la función buscarPorNombre del modelo
       const categoria = await categoriasModel.buscarPorNombre(nombre);

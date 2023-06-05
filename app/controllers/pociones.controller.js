@@ -170,7 +170,6 @@ class PocionesController {
   // Editar poción
   async editar(req, res) {
     const { id, nombre, descripcion, precio, cantidad, categoriaID, ingredientesIDs, imagenNueva } = req.body;
-    console.log(ingredientesIDs);
     let imagen;
     let rutaImagen;
     if (req.file) {
