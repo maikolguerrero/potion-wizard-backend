@@ -4,7 +4,7 @@
 Backend para realizar operaciones CRUD (Crear, Leer, Actualizar y Eliminar) sobre el inventario de una tienda de pociones mágicas. El Frontend se encuentra en este repositorio para que puedas probarlo: https://github.com/maikolguerrero/potion-wizard-frontend
 
 ## Demostración
-Aquí puedes ver una demostración de la aplicación en funcionamiento usándolo con el Frontend:
+Aquí puedes ver en YouTube una demostración de la aplicación en funcionamiento usándolo con el Frontend:
 
 **https://youtu.be/Yg6EQSA1pyg**
 
